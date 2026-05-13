@@ -1,0 +1,106 @@
+from django.db import connection
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.http import HttpResponse
+from .models import Post
+import re
+
+
+def is_at_least_decent_password(password):
+    """This is function copied from internet"""
+    # Check if password is at least 8 characters long
+    if len(password) < 8:
+        return False
+    # Check for at least one digit
+    if not re.search(r'\d', password):
+        return False
+    # Check for at least one uppercase letter
+    if not re.search(r'[A-Z]', password):
+        return False
+    # Check for at least one special character
+    if not re.search(r'[\W_]', password):  # Non-word character (e.g. !, @, #)
+        return False
+    return True
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        query = f"SELECT * FROM auth_user WHERE username = '{username}' AND password = '{password}'"
+        cursor = connection.cursor()
+        cursor.execute(query)
+        row = cursor.fetchone()
+        if row:
+            user = User.objects.get(username=username)
+            login(request, user)
+            return redirect("home")
+        else:
+            return HttpResponse("Invalid credentials")
+        
+        # This allows SQL injection, use this instead
+        # user = authenticate(request, username=username, password=password)
+        # if user is not None:
+        #     login(request, user)  # Log the user in
+        #     return redirect("home")
+        # else:
+        #     return HttpResponse("Invalid credentials")
+
+
+    return render(request, "login.html")
+
+
+def register_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        password2 = request.POST["password2"]
+
+        if password == password2:
+            # if not is_at_least_decent_password(password):
+            #     messages.error(request, "Password must be at least 8 characters long, contain a digit, an uppercase letter, and a special character.")
+            #     return render(request, "register.html")
+            user = User.objects.create(username=username, password=password)
+            # The password is not hashed, use this instead
+            # user = User.objects.create_user(username=username, password=password)
+            user.save()
+            messages.success(request, "Account created! You can now log in.")
+            return redirect("login")
+        else:
+            messages.error(request, "Passwords do not match.")
+
+    return render(request, "register.html")
+
+# Delete the @csrf_exempt to fix
+@csrf_exempt
+def home_view(request):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("login")
+        content = request.POST.get("content")
+        # Flaw: Stored XSS is possible because we don't sanitize 'content' 
+        # and we will use the |safe filter in the template.
+        Post.objects.create(content=content, user=request.user)
+        return redirect("home")
+
+    posts = Post.objects.all()
+    return render(request, "home.html", {"posts": posts})
+
+
+def delete_post_view(request, post_id):
+    if not request.user.is_authenticated:
+        return redirect("login")
+    
+    # FLAW: Broken Access Control (IDOR)
+    # Any logged in user can delete any post by ID
+    post = Post.objects.get(id=post_id)
+    post.delete()
+
+    # FIX: Check that the post belongs to the user
+    # post = Post.objects.get(id=post_id, user=request.user)
+    # post.delete()
+
+    return redirect("home")
