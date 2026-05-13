@@ -15,15 +15,16 @@ def is_at_least_decent_password(password):
     if len(password) < 8:
         return False
     # Check for at least one digit
-    if not re.search(r'\d', password):
+    if not re.search(r"\d", password):
         return False
     # Check for at least one uppercase letter
-    if not re.search(r'[A-Z]', password):
+    if not re.search(r"[A-Z]", password):
         return False
     # Check for at least one special character
-    if not re.search(r'[\W_]', password):  # Non-word character (e.g. !, @, #)
+    if not re.search(r"[\W_]", password):  # Non-word character (e.g. !, @, #)
         return False
     return True
+
 
 def login_view(request):
     if request.method == "POST":
@@ -40,7 +41,7 @@ def login_view(request):
             return redirect("home")
         else:
             return HttpResponse("Invalid credentials")
-        
+
         # This allows SQL injection, use this instead
         # user = authenticate(request, username=username, password=password)
         # if user is not None:
@@ -48,7 +49,6 @@ def login_view(request):
         #     return redirect("home")
         # else:
         #     return HttpResponse("Invalid credentials")
-
 
     return render(request, "login.html")
 
@@ -74,6 +74,7 @@ def register_view(request):
 
     return render(request, "register.html")
 
+
 # Delete the @csrf_exempt to fix
 @csrf_exempt
 def home_view(request):
@@ -81,7 +82,7 @@ def home_view(request):
         if not request.user.is_authenticated:
             return redirect("login")
         content = request.POST.get("content")
-        # Flaw: Stored XSS is possible because we don't sanitize 'content' 
+        # Flaw: Stored XSS is possible because we don't sanitize 'content'
         # and we will use the |safe filter in the template.
         Post.objects.create(content=content, user=request.user)
         return redirect("home")
