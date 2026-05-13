@@ -1,6 +1,6 @@
 # Cyber Security Base Project 1
 
-A deliberately vulnerable Django web application demonstrating 5+ security flaws from the OWASP Top 10 (2021) list, with commented-out fixes for educational purposes.
+A deliberately vulnerable Django web application demonstrating 5 security flaws from the OWASP Top 10 (2021) list, with commented-out fixes for educational purposes.
 
 ## OWASP Version Used
 
@@ -47,14 +47,6 @@ This project uses the **OWASP Top 10 2021** list.
 - **Flaw:** User content is stored without sanitization and rendered with `|safe` template filter
 - **Impact:** Attacker can inject malicious JavaScript that executes in other users' browsers
 - **Fix:** Remove `|safe` filter or use `django.utils.html.escape()`
-
-### 6. A01:2021 – Broken Access Control (IDOR - Insecure Direct Object Reference)
-
-**Location:** `accounts/views.py` - `delete_post_view()` function
-
-- **Flaw:** Any logged-in user can delete any post by modifying the post ID in the URL
-- **Impact:** Data loss and unauthorized modification of other users' content
-- **Fix:** Add check `post = Post.objects.get(id=post_id, user=request.user)` (commented in code)
 
 ---
 
@@ -186,12 +178,17 @@ This project uses the **OWASP Top 10 2021** list.
 2. Refresh the page or have another user view your post
 3. **Expected result:** JavaScript executes, showing an alert
 
-### Testing Flaw 6: IDOR
+---
 
-1. Log in and create a post
-2. Note the post ID from the delete button URL
-3. Try to delete another user's post by changing the post ID in the URL
-4. **Expected result:** You can delete posts that don't belong to you
+## Screenshot Evidence
+
+Screenshots are stored in the `screenshots/` folder and follow the required naming format.
+
+- Flaw 1: `flaw-1-before-1.png`, `flaw-1-before-2.png`, `flaw-1-after-1.png`
+- Flaw 2: `flaw-2-before-1.png`, `flaw-2-after-1.png`
+- Flaw 3: `flaw-3-before-1.png`, `flaw-3-before-2.png`, `flaw-3-after-1.png`
+- Flaw 4: `flaw-4-before-1.png`, `flaw-4-before-2.png`, `flaw-4-after-1.png`
+- Flaw 5: `flaw-5-before-1.png`, `flaw-5-after-1.png`
 
 ---
 
