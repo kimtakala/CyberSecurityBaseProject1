@@ -93,14 +93,13 @@ def home_view(request):
 def delete_post_view(request, post_id):
     if not request.user.is_authenticated:
         return redirect("login")
-    
-    # FLAW: Broken Access Control (IDOR)
-    # Any logged in user can delete any post by ID
-    post = Post.objects.get(id=post_id)
+
+    # FIXED: enforce ownership when deleting posts.
+    post = Post.objects.get(id=post_id, user=request.user)
     post.delete()
 
-    # FIX: Check that the post belongs to the user
-    # post = Post.objects.get(id=post_id, user=request.user)
+    # FLAW VERSION (kept as reference):
+    # post = Post.objects.get(id=post_id)
     # post.delete()
 
     return redirect("home")
