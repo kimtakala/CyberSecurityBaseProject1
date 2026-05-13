@@ -163,7 +163,7 @@ This project uses the **OWASP Top 10 2021** list.
 1. Log in to the application
 2. Create an HTML file on another domain with:
    ```html
-   <form action="http://127.0.0.1:8000/home/" method="POST">
+   <form action="http://127.0.0.1:8000/" method="POST">
      <input type="hidden" name="content" value="Hacked post" />
      <input type="submit" />
    </form>
@@ -189,6 +189,16 @@ Screenshots are stored in the `screenshots/` folder and follow the required nami
 - Flaw 3: `flaw-3-before-1.png`, `flaw-3-before-2.png`, `flaw-3-after-1.png`
 - Flaw 4: `flaw-4-before-1.png`, `flaw-4-before-2.png`, `flaw-4-after-1.png`
 - Flaw 5: `flaw-5-before-1.png`, `flaw-5-after-1.png`
+
+---
+
+## Course Requirement Checklist (Project Part I)
+
+- Uses one OWASP list only: **OWASP Top 10 2021**
+- Contains at least 5 real backend flaws in code
+- Contains a commented fix for each demonstrated flaw in the same codebase version
+- Includes before/after screenshots for each flaw in `screenshots/`
+- Includes backend implementation (Django)
 
 ---
 

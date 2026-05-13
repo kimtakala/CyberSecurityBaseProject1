@@ -84,6 +84,7 @@ def home_view(request):
         content = request.POST.get("content")
         # Flaw: Stored XSS is possible because we don't sanitize 'content'
         # and we will use the |safe filter in the template.
+        # content = django.utils.html.escape(content)
         Post.objects.create(content=content, user=request.user)
         return redirect("home")
 
